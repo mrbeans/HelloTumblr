@@ -6,9 +6,6 @@ from ..items import TumblrItem
 from redis import *
 from ..Util.Conf import Config
 
-origin_url='https://www.tumblr.com'
-origin_video_url='https://vtt.tumblr.com/{0}.mp4'
-
 class LikeSpider(scrapy.Spider):
     name = 'like'
     allowed_domains = ['tumblr.com']
@@ -47,6 +44,7 @@ class LikeSpider(scrapy.Spider):
             Config.RedisDB.hset(name=LikeSpider.name+'-image',key=i.get('title'),value=i.get('url'))
 
         next_url=response.xpath('//*[@id="next_page_link"]/@href')[0].extract()
-        print(next_url)
-        yield scrapy.http.FormRequest(origin_url+next_url,cookies=dict([l.split("=", 1) for l in Config.Cookies.split("; ")]),callback=self.parse)
+        if(next_url!=None and len(next_url)>0):
+            print(next_url)
+            yield scrapy.http.FormRequest(Config.OriginUrl+next_url,cookies=dict([l.split("=", 1) for l in Config.Cookies.split("; ")]),callback=self.parse)
 

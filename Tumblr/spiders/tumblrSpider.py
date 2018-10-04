@@ -5,10 +5,6 @@ from ..items import TumblrItem
 from redis import *
 from ..Util.Conf import Config
 
-cookies=""
-origin_url='https://www.tumblr.com'
-redis_db = StrictRedis(host='127.0.0.1', port=6379, db=0)
-
 class TumblrSpider(scrapy.Spider):
   name='tumblr'
   allowed_domains=['tumblr.com']
@@ -43,5 +39,6 @@ class TumblrSpider(scrapy.Spider):
       Config.RedisDB.hset(name='video',key=title,value=url,downloaded=0)
 
     next_url=response.xpath('//*[@id="next_page_link"]/@href')[0].extract()
-    print(next_url)
-    yield scrapy.http.FormRequest(origin_url+next_url,cookies=dict([l.split("=", 1) for l in Config.Cookies.split("; ")]),callback=self.parse)
+    if(next_url!=None and len(next_url)>0):
+      print(next_url)
+      yield scrapy.http.FormRequest(Config.OriginUrl+next_url,cookies=dict([l.split("=", 1) for l in Config.Cookies.split("; ")]),callback=self.parse)
